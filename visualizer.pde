@@ -1,21 +1,21 @@
+float rotation = 0;
+
 void setup()
 {
-  size(500, 500);
+  size(750, 750);
   
-  background(0);
   noStroke();
   smooth();
-  
-  noLoop();
 }
 
 void draw()
 {
+  background(0);
   translate(width/2, height/2);
   
-  for (int i = 0; i < 360; i += 20) {
-    circleToCenter(radians(i), width/2, width/2, 20);
-  }
+  float diagonal = sqrt(2) * width / 2;
+  circlesToCenter(diagonal, diagonal, 30, false);
+  rotation = (rotation + 0.5) % 360;
 }
 
 void circle(float theta, float distance, float radius)
@@ -26,14 +26,22 @@ void circle(float theta, float distance, float radius)
           radius * 2, radius * 2);
 }
 
-void circleToCenter(float theta, float distance, float maxDistance, float maxRadius)
+void circleToCenter(float distance, float radius, boolean opposite)
+{
+  for (int i = 0; i < 360; i += 20) {
+    float rot = opposite ? -rotation : rotation;
+    circle(radians(i + rot), distance, radius);
+  }
+}
+
+void circlesToCenter(float distance, float maxDistance, float maxRadius, boolean opposite)
 {
   if (distance < 5) {
     return;
   }
   
   float radius = maxRadius * distance / maxDistance;
-  circle(theta, distance, radius);
-  circleToCenter(theta, distance - 2 * radius - 3, maxDistance, maxRadius);
+  circleToCenter(distance, radius, opposite);
+  circlesToCenter(distance - 2 * radius - 3, maxDistance, maxRadius, !opposite);
 }
 

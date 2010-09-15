@@ -1,6 +1,6 @@
 void setup()
 {
-  size(500, 500);
+  size(750, 750);
   
   background(0);
   noStroke();
@@ -13,8 +13,9 @@ void draw()
 {
   translate(width/2, height/2);
   
+  float distance = sqrt(2) * width / 2;
   for (int i = 0; i < 360; i += 20) {
-    circleToCenter(radians(i), width/2, width/2, 20);
+    circleToCenter(radians(i), distance, distance, 30);
   }
 }
 

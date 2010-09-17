@@ -18,7 +18,7 @@ void draw()
   
   float distance = sqrt(2) * width / 2;
   for (int i = 0; i < 360; i += 20) {
-    circleToCenter(radians(i), distance, distance, 40);
+    circleToCenter(radians(i), distance, distance, 40, false);
   }
   
   t = (t + 1) % 36000;
@@ -32,15 +32,15 @@ void circle(float theta, float distance, float radius)
           radius * 2, radius * 2);
 }
 
-void circleToCenter(float theta, float distance, float maxDistance, float maxRadius)
+void circleToCenter(float theta, float distance, float maxDistance, float maxRadius, boolean opposite)
 {
   if (distance < 5) {
     return;
   }
-  float offset = radians(cos(radians(t)) * 10);
   
+  float offset = opposite ? -radians(t / 4.0) : radians(t / 4);
   float radius = maxRadius * distance / maxDistance;
-  circle(theta + offset + radians(t / 4.0), distance, radius);
-  circleToCenter(theta, distance - 2 * radius - 3, maxDistance, maxRadius);
+  circle(theta + offset, distance, radius);
+  circleToCenter(theta, distance - 2 * radius - 3, maxDistance, maxRadius, !opposite);
 }
 

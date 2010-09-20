@@ -1,11 +1,29 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
 import processing.opengl.*;
 
 int t = 0;
+float circleBrightness = 40;
+
+// audio related
+Minim minim;
+AudioPlayer song;
+BeatDetect beat;
+BeatListener bl;
 
 void setup()
 {
   size(750, 750, OPENGL);
-  noStroke();
+  
+  // audio setup
+  minim = new Minim(this);
+  song = minim.loadFile("ThisSpace.mp3", 2048);
+  song.play();
+  
+  // beat detection
+  beat = new BeatDetect(song.bufferSize(), song.sampleRate());
+  beat.setSensitivity(200);
+  bl = new BeatListener(beat, song);
 }
 
 void draw()
@@ -13,8 +31,12 @@ void draw()
   translate(width/2, height/2);
   background(0);
   
-  float col = 107.5 * cos(t / 8.0) + 147.5;
-  fill(constrain(col, 40, 255));
+  if (beat.isSnare()) {
+    circleBrightness = 255;
+  }
+  
+  fill(circleBrightness);
+  noStroke();
   
   float distance = sqrt(2) * width / 2;
   for (int i = 0; i < 360; i += 20) {
@@ -22,6 +44,17 @@ void draw()
   }
   
   t = (t + 1) % 36000;
+  circleBrightness = constrain(circleBrightness * 0.9, 40, 255);
+}
+
+void stop()
+{
+  // always close Minim audio classes when you are finished with them
+  song.close();
+  // always stop Minim before exiting
+  minim.stop();
+  // this closes the sketch
+  super.stop();
 }
 
 void circle(float theta, float distance, float radius)

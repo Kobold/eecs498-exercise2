@@ -3,9 +3,15 @@ import ddf.minim.analysis.*;
 import processing.opengl.*;
 
 int t = 0;
-float circleBrightness = 40;
+float circleShade = 100;
 float circleDiameter;
 float totalDiameter;
+
+int COLOR_CHANGE_RATE = 20; // bigger numbers go slower
+int colorChangeCount = 0;
+
+float primaryColor = 0;
+float secondColor = 180;
 
 // audio related
 Minim minim;
@@ -32,25 +38,31 @@ void setup()
 void draw()
 {
   translate(width/2, height/2);
-  background(0);
+  
+  colorMode(HSB, 360, 100, 100);
+  background(secondColor, 100, 80);
   
   if (beat.isKick()) {
     circleDiameter = totalDiameter * 0.8;
   }
   if (beat.isSnare()) {
-    circleBrightness = 255;
+    circleShade = 1;
+    if (colorChangeCount == 0) {
+      primaryColor = (primaryColor + 20.0) % 360;
+      secondColor = (primaryColor + 180.0) % 360;
+    }
+    colorChangeCount = (colorChangeCount + 1) % COLOR_CHANGE_RATE;
   }
   
-  fill(circleBrightness);
+  fill(primaryColor, circleShade, 80);
   noStroke();
-  
   for (int i = 0; i < 360; i += 20) {
     circleToCenter(radians(i), circleDiameter, circleDiameter, 40, false);
   }
   
   t = (t + 1) % 36000;
   circleDiameter = constrain(circleDiameter * 1.01, totalDiameter * 0.8, totalDiameter);
-  circleBrightness = constrain(circleBrightness * 0.9, 40, 255);
+  circleShade = constrain(circleShade * 1.2, 1, 100);
 }
 
 void stop()

@@ -4,6 +4,8 @@ import processing.opengl.*;
 
 int t = 0;
 float circleBrightness = 40;
+float circleDiameter;
+float totalDiameter;
 
 // audio related
 Minim minim;
@@ -14,6 +16,7 @@ BeatListener bl;
 void setup()
 {
   size(750, 750, OPENGL);
+  totalDiameter = circleDiameter = sqrt(2) * width / 2;
   
   // audio setup
   minim = new Minim(this);
@@ -31,6 +34,9 @@ void draw()
   translate(width/2, height/2);
   background(0);
   
+  if (beat.isKick()) {
+    circleDiameter = totalDiameter * 0.8;
+  }
   if (beat.isSnare()) {
     circleBrightness = 255;
   }
@@ -38,12 +44,12 @@ void draw()
   fill(circleBrightness);
   noStroke();
   
-  float distance = sqrt(2) * width / 2;
   for (int i = 0; i < 360; i += 20) {
-    circleToCenter(radians(i), distance, distance, 40, false);
+    circleToCenter(radians(i), circleDiameter, circleDiameter, 40, false);
   }
   
   t = (t + 1) % 36000;
+  circleDiameter = constrain(circleDiameter * 1.01, totalDiameter * 0.8, totalDiameter);
   circleBrightness = constrain(circleBrightness * 0.9, 40, 255);
 }
 

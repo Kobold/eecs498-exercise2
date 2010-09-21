@@ -2,7 +2,7 @@ import ddf.minim.*;
 import ddf.minim.analysis.*;
 
 int t = 0;
-float circleBrightness = 20;
+float circleBrightness = 0;
 float circleDiameter;
 float totalDiameter;
 
@@ -44,7 +44,7 @@ void draw()
     circleDiameter = totalDiameter * 0.8;
   }
   if (beat.isSnare()) {
-    circleBrightness = 1;
+    circleBrightness = 22;
     if (colorChangeCount == 0) {
       primaryColor = (primaryColor + 20.0) % 360;
       secondColor = (primaryColor + 180.0) % 360;
@@ -55,7 +55,7 @@ void draw()
   // draw background recursive circles
   fill(primaryColor, 80, circleBrightness);
   noStroke();
-  for (int i = 0; i < 360; i += 20) {
+  for (int i = 0; i < 360; i += 30) {
     circleToCenter(radians(i), circleDiameter, circleDiameter, 40, false);
   }
   
@@ -91,7 +91,7 @@ void draw()
   
   t = (t + 1) % 36000;
   circleDiameter = constrain(circleDiameter * 1.01, totalDiameter * 0.8, totalDiameter);
-  circleBrightness = constrain(circleBrightness * 1.1, 1, 20);
+  circleBrightness = constrain(circleBrightness * 0.98, 0, 22);
 }
 
 void stop()

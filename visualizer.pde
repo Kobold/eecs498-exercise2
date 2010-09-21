@@ -1,9 +1,8 @@
 import ddf.minim.*;
 import ddf.minim.analysis.*;
-import processing.opengl.*;
 
 int t = 0;
-float circleShade = 100;
+float circleBrightness = 20;
 float circleDiameter;
 float totalDiameter;
 
@@ -21,7 +20,7 @@ BeatListener bl;
 
 void setup()
 {
-  size(750, 750, OPENGL);
+  size(750, 750, P2D);
   totalDiameter = circleDiameter = sqrt(2) * width / 2;
   
   // audio setup
@@ -38,15 +37,14 @@ void setup()
 void draw()
 {
   translate(width/2, height/2);
-  
+  background(0);
   colorMode(HSB, 360, 100, 100);
-  background(secondColor, 100, 80);
   
   if (beat.isKick()) {
     circleDiameter = totalDiameter * 0.8;
   }
   if (beat.isSnare()) {
-    circleShade = 1;
+    circleBrightness = 1;
     if (colorChangeCount == 0) {
       primaryColor = (primaryColor + 20.0) % 360;
       secondColor = (primaryColor + 180.0) % 360;
@@ -54,15 +52,46 @@ void draw()
     colorChangeCount = (colorChangeCount + 1) % COLOR_CHANGE_RATE;
   }
   
-  fill(primaryColor, circleShade, 80);
+  // draw background recursive circles
+  fill(primaryColor, 80, circleBrightness);
   noStroke();
   for (int i = 0; i < 360; i += 20) {
     circleToCenter(radians(i), circleDiameter, circleDiameter, 40, false);
   }
   
+  float top = width / 2;
+  float angle = 60;
+  int lag = 16;
+  
+  // find the high and low values
+  float high = -1e10, low = 1e10;
+  for (int i = 0; i < song.left.size(); i++) {
+    high = max(high, song.left.get(i));
+    low = min(low, song.left.get(i));
+  }
+  
+  // rescale the samples to [0, top]
+  float[] buffer = new float[song.left.size()];
+  for (int i = 0; i < song.left.size(); i++) {
+    buffer[i] = (song.left.get(i) - low) * top / (high - low);
+  }
+  
+  for (int j = 0; j < song.left.size() - lag; j++) {
+    if (buffer[j+lag] - buffer[j] >= 0) {
+      stroke(primaryColor, 100, 100);
+    } else {
+      stroke(secondColor, 100, 100);
+    }
+    
+    for (float i = 1; i < 360; i += angle) {
+      plotDot(buffer[j], i+buffer[j+lag]);
+      plotDot(buffer[j], i-buffer[j+lag]);
+    }
+  }
+  
   t = (t + 1) % 36000;
   circleDiameter = constrain(circleDiameter * 1.01, totalDiameter * 0.8, totalDiameter);
-  circleShade = constrain(circleShade * 1.2, 1, 100);
+  circleBrightness = constrain(circleBrightness * 1.1, 1, 20);
 }
 
 void stop()
@@ -73,6 +102,13 @@ void stop()
   minim.stop();
   // this closes the sketch
   super.stop();
+}
+
+void plotDot(float r, float theta)
+{
+  float x = r * cos(theta);
+  float y = r * sin(theta);
+  point(x, y);
 }
 
 void circle(float theta, float distance, float radius)

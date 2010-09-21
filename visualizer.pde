@@ -59,35 +59,7 @@ void draw()
     circleToCenter(radians(i), circleDiameter, circleDiameter, 40, false);
   }
   
-  float top = width / 2;
-  float angle = 60;
-  int lag = 16;
-  
-  // find the high and low values
-  float high = -1e10, low = 1e10;
-  for (int i = 0; i < song.left.size(); i++) {
-    high = max(high, song.left.get(i));
-    low = min(low, song.left.get(i));
-  }
-  
-  // rescale the samples to [0, top]
-  float[] buffer = new float[song.left.size()];
-  for (int i = 0; i < song.left.size(); i++) {
-    buffer[i] = (song.left.get(i) - low) * top / (high - low);
-  }
-  
-  for (int j = 0; j < song.left.size() - lag; j++) {
-    if (buffer[j+lag] - buffer[j] >= 0) {
-      stroke(primaryColor, 100, 100);
-    } else {
-      stroke(secondColor, 100, 100);
-    }
-    
-    for (float i = 1; i < 360; i += angle) {
-      plotDot(buffer[j], i+buffer[j+lag]);
-      plotDot(buffer[j], i-buffer[j+lag]);
-    }
-  }
+  symmetrizedDotPattern(song.left.toArray(), song.left.size());
   
   t = (t + 1) % 36000;
   circleDiameter = constrain(circleDiameter * 1.01, totalDiameter * 0.8, totalDiameter);
@@ -129,5 +101,39 @@ void circleToCenter(float theta, float distance, float maxDistance, float maxRad
   float radius = maxRadius * distance / maxDistance;
   circle(theta + offset, distance, radius);
   circleToCenter(theta, distance - 2 * radius - 3, maxDistance, maxRadius, !opposite);
+}
+
+void symmetrizedDotPattern(float[] samples, int length)
+{
+  // various tweakable parameters
+  float top = width / 2;
+  float angle = 60;
+  int lag = 16;
+  
+  // find the high and low values
+  float high = -1e10, low = 1e10;
+  for (int i = 0; i < length; i++) {
+    high = max(high, samples[i]);
+    low = min(low, samples[i]);
+  }
+  
+  // rescale the samples to [0, top]
+  float[] buffer = new float[length];
+  for (int i = 0; i < length; i++) {
+    buffer[i] = (samples[i] - low) * top / (high - low);
+  }
+  
+  for (int j = 0; j < length - lag; j++) {
+    if (buffer[j+lag] - buffer[j] >= 0) {
+      stroke(primaryColor, 100, 100);
+    } else {
+      stroke(secondColor, 100, 100);
+    }
+    
+    for (float i = 1; i < 360; i += angle) {
+      plotDot(buffer[j], i+buffer[j+lag]);
+      plotDot(buffer[j], i-buffer[j+lag]);
+    }
+  }
 }
 

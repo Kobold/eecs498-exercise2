@@ -25,7 +25,7 @@ void setup()
   
   // audio setup
   minim = new Minim(this);
-  song = minim.loadFile("ThisSpace.mp3", 2048);
+  song = minim.loadFile("FinallyMoving.mp3", 2048);
   song.play();
   
   // beat detection
@@ -108,7 +108,7 @@ void symmetrizedDotPattern(float[] samples, int length)
   // various tweakable parameters
   float top = width / 2;
   float angle = 60;
-  int lag = 16;
+  int lag = 32;
   
   // find the high and low values
   float high = -1e10, low = 1e10;
